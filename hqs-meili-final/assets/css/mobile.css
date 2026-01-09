@@ -1,15 +1,13 @@
 /* ============================================================
  * HQS MOBILE ADD-ON (V3.1 - Fix Colors & Header)
  * ============================================================ */
-
+ 
 @media (max-width: 768px) {
-
+ 
     /* 1. POSICIONAMENTO */
     #hqs-dropdown {
         position: fixed !important;
-        top: 0 !important; /* Ocupa tudo para dar imersão, ou ajusta para 90px se preferires manter header visível */
-        left: 0 !important;
-        width: 100% !important;
+        inset: 0 !important; /* fullscreen */
         height: 100vh !important;
         max-height: none !important;
         border-radius: 0 !important;
@@ -18,15 +16,16 @@
         box-shadow: none !important;
         display: none; /* Controlado pelo JS */
     }
-
-    /* Forçar Flex quando visível */
+ 
+    /* Forçar Flex quando visível (class preferida; selector antigo como fallback) */
+    #hqs-dropdown.hqs-open,
     #hqs-dropdown[style*="block"] {
         display: flex !important;
         flex-direction: column !important;
     }
-
+ 
     /* 2. LAYOUT FLEXIVEL */
-    .hqs-container {
+    #hqs-dropdown .hqs-container {
         display: flex !important;
         flex-direction: column !important;
         height: 100% !important;
@@ -34,90 +33,108 @@
         grid-template-columns: none !important;
         overflow: hidden !important; /* Container não faz scroll, filhos fazem */
     }
-
+ 
     /* === NOVO HEADER MOBILE (Injetado via JS) === */
-    .hqs-mobile-header {
+    #hqs-dropdown .hqs-mobile-header {
         flex: 0 0 auto;
         display: flex;
         align-items: center;
         justify-content: space-between;
         background: #fff;
-        padding: 12px 16px;
+        padding: calc(10px + env(safe-area-inset-top)) 12px 10px;
         border-bottom: 1px solid #eee;
         box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+        position: sticky;
+        top: 0;
+        z-index: 2;
     }
-    .hqs-mob-title { font-weight: 700; font-size: 14px; color: #333; text-transform: uppercase; }
-    .hqs-mob-close {
+    #hqs-dropdown .hqs-mob-title {
+        font-weight: 700;
+        font-size: 13px;
+        color: #333;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        line-height: 1.2;
+    }
+    #hqs-dropdown .hqs-mob-close {
         background: transparent;
         border: none;
-        font-size: 24px;
+        font-size: 28px;
         line-height: 1;
         color: #555;
-        padding: 4px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
         cursor: pointer;
         display: flex;
         align-items: center;
         justify-content: center;
+        border-radius: 10px;
     }
-
+    #hqs-dropdown .hqs-mob-close:active { background: rgba(0,0,0,0.06); }
+ 
     /* === ZONA 1: PRODUTOS === */
-    .hqs-right {
+    #hqs-dropdown .hqs-right {
         order: 2; /* Depois do header (que será injetado no inicio) e categorias? Não, categorias no fim */
         flex: 1;
         overflow-y: auto !important;
         -webkit-overflow-scrolling: touch;
-        padding: 12px !important;
+        padding: 12px 12px calc(14px + env(safe-area-inset-bottom)) !important;
         background: #f5f5f5;
     }
-
-    .hqs-products-header { display: none !important; }
-
-    .hqs-products-grid {
+ 
+    #hqs-dropdown .hqs-products-header { display: none !important; }
+ 
+    #hqs-dropdown .hqs-products-grid {
         display: grid !important;
-        grid-template-columns: 1fr 1fr !important; 
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         gap: 10px !important;
     }
-
+    @media (max-width: 360px) {
+        #hqs-dropdown .hqs-products-grid { grid-template-columns: 1fr !important; }
+    }
+ 
     /* CARD MOBILE */
-    .hqs-card {
+    #hqs-dropdown .hqs-card {
         border: none !important;
         background: #fff;
         border-radius: 8px !important;
         box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
         display: flex;
         flex-direction: column;
-        padding-bottom: 8px;
+        padding-bottom: 10px;
     }
-
-    .hqs-img {
+ 
+    #hqs-dropdown .hqs-img {
         height: auto !important;
         aspect-ratio: 1 / 1 !important;
         width: 100% !important;
         background: #fff;
         margin-bottom: 6px;
     }
-    .hqs-img img { padding: 8px !important; }
-
-    .hqs-info { padding: 0 8px !important; }
-
-    .hqs-title {
+    #hqs-dropdown .hqs-img img { padding: 10px !important; }
+ 
+    #hqs-dropdown .hqs-info { padding: 0 10px !important; }
+ 
+    #hqs-dropdown .hqs-title {
         font-size: 12px !important;
         line-height: 1.3 !important;
         height: 2.6em !important;
         margin-bottom: 4px !important;
     }
-
-
-    .hqs-desc, .hqs-meta { display: none !important; }
-
+ 
+ 
+    #hqs-dropdown .hqs-desc,
+    #hqs-dropdown .hqs-meta { display: none !important; }
+ 
     /* === PREÇO - CORRIGIDO (VERSÃO REFORÇADA) === */
-    .hqs-price-wrapper { margin-top: auto !important; }
+    #hqs-dropdown .hqs-price-wrapper { margin-top: auto !important; }
     
     /* Adicionei #hqs-dropdown no início para garantir que ganha ao tema */
     #hqs-dropdown .hqs-price-wrapper .price-normal, 
     #hqs-dropdown .hqs-price-wrapper .price-sale {
         font-size: 13px !important;
-        color: #00526d !important; /* Azul #00526d Forçado */
+        color: var(--hqs-accent, #00526d) !important; /* Azul */
         font-weight: 700 !important;
         display: inline-block !important; /* Garante que o span aceita formatação */
     }
@@ -128,20 +145,20 @@
         text-decoration: line-through;
         margin-left: 4px;
     }
-
-
+ 
+ 
     /* === ZONA 2: CATEGORIAS (Fixed Bottom ou Scroll horizontal no topo? Mantive em baixo conforme teu original) === */
-    .hqs-left {
+    #hqs-dropdown .hqs-left {
         order: 3;
         flex: 0 0 auto;
         background: #fff;
         border-top: 1px solid #ddd;
-        padding: 10px !important;
+        padding: 10px 10px calc(10px + env(safe-area-inset-bottom)) !important;
         border-right: none !important;
         z-index: 20;
     }
-
-    .hqs-left .hqs-scroll-area {
+ 
+    #hqs-dropdown .hqs-left .hqs-scroll-area {
         display: flex;
         flex-direction: row;
         overflow-x: auto;
@@ -150,28 +167,28 @@
         padding-bottom: 5px;
     }
     
-    .hqs-left h3 { display: none !important; }
+    #hqs-dropdown .hqs-left h3 { display: none !important; }
     
-    .hqs-list {
+    #hqs-dropdown .hqs-list {
         flex-direction: row !important;
         display: flex !important;
         gap: 8px !important;
         margin: 0 !important;
     }
-
-    .hqs-item {
+ 
+    #hqs-dropdown .hqs-item {
         background: #eff2f5;
         color: #333;
         border-radius: 20px !important;
-        padding: 6px 14px !important;
-        font-size: 11px !important;
+        padding: 8px 14px !important;
+        font-size: 12px !important;
         border: none !important;
         flex-shrink: 0;
     }
-
-    .hqs-left-footer { display: none !important; }
+ 
+    #hqs-dropdown .hqs-left-footer { display: none !important; }
     
-    .hqs-viewall {
+    #hqs-dropdown .hqs-viewall {
         margin-top: 10px;
         width: 100%;
         padding: 12px;
