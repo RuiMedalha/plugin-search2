@@ -1,20 +1,20 @@
 <?php
 /**
- * Plugin Name: HQS Meili Search Pro (Versão API Interna)
+ * Plugin Name: HQS Meili Search Pro (Versão API Interna1)
  * Description: Usa a mesma lógica do dropdown (REST API) para a página de resultados. Zero erros de Host/CORS.
- * Version: 4.0
- * Author: Rui & Copilot
+ * Version: 5.0
+ * Author: Rui
  */
-
+ 
 if (!defined('ABSPATH')) exit;
-
+ 
 // ====== 1. INCLUDES ======
 require_once __DIR__ . '/includes/class-settings.php';
 require_once __DIR__ . '/includes/class-admin.php';
 require_once __DIR__ . '/includes/class-rest-v2.php';
 require_once __DIR__ . '/includes/class-indexer.php';
 require_once __DIR__ . '/includes/class-logger.php';
-
+ 
 // Ativação e Setup
 register_activation_hook(__FILE__, function(){
     global $wpdb;
@@ -24,9 +24,9 @@ register_activation_hook(__FILE__, function(){
     require_once ABSPATH . 'wp-admin/includes/upgrade.php';
     dbDelta($sql);
 });
-
+ 
 add_action('after_setup_theme', function(){ add_image_size('hqs-search-thumb', 320, 320, false); });
-
+ 
 // ====== 2. SCRIPTS ======
 add_action('wp_enqueue_scripts', function(){
     // Dropdown (Mantém-se igual)
@@ -46,44 +46,61 @@ add_action('wp_enqueue_scripts', function(){
         'currency'      => get_woocommerce_currency(),
     ]);
 });
-
+ 
 // Shortcode Dropdown
 add_shortcode('hqs_meili_search', function(){ ob_start(); ?>
     <div class="hqs-meili-wrapper"><input type="search" class="hqs-meili-input" placeholder="Pesquisar produtos…" aria-label="Pesquisar" /></div>
 <?php return ob_get_clean(); });
-
+ 
 // ====== 3. PÁGINA DE RESULTADOS (VIA API INTERNA) ======
 // SUBSTITUI a função hqs_render_search_page() no teu ficheiro principal
-
+ 
 function hqs_render_search_page() {
     
     // Carregar assets com versão atualizada para limpar cache
     wp_enqueue_script('hqs-meili-search-js', plugin_dir_url(__FILE__) . 'assets/js/search-results.js', array('jquery'), '7.5', true);
     wp_enqueue_style('hqs-search-style', plugin_dir_url(__FILE__) . 'assets/css/search-style.css', array(), '7.5');
-
+ 
     // Passamos o endpoint da API
     wp_localize_script('hqs-meili-search-js', 'hqsData', array(
         'apiUrl' => site_url('/wp-json/hqs/v2/search'),
         'nonce'  => wp_create_nonce('wp_rest')
     ));
-
+ 
     ob_start();
     ?>
     <div id="hqs-search-app">
         
         <div class="hqs-header">
-            <p class="hqs-title">
-                Resultados para: <span id="hqs-search-term">...</span>
-                <span style="font-size:0.8em; color:#777; margin-left:10px;">(<span id="hqs-total-hits">0</span> produtos)</span>
-            </p>
+            <div class="hqs-header-row">
+                <p class="hqs-title">
+                    Resultados para: <span id="hqs-search-term">...</span>
+                    <span style="font-size:0.8em; color:#777; margin-left:10px;">(<span id="hqs-total-hits">0</span> produtos)</span>
+                </p>
+ 
+                <div class="hqs-header-actions">
+                    <button
+                        type="button"
+                        class="hqs-btn hqs-btn-primary"
+                        id="hqs-open-filters"
+                        aria-controls="hqs-sidebar"
+                        aria-expanded="false"
+                        style="display:none;"
+                    >
+                        Filtros
+                    </button>
+                </div>
+            </div>
         </div>
-
+ 
+        <div class="hqs-filters-backdrop" id="hqs-filters-backdrop" aria-hidden="true"></div>
+ 
         <div class="hqs-layout">
             
-            <aside class="hqs-sidebar" style="display:none;">
+            <aside class="hqs-sidebar" id="hqs-sidebar">
                 <!-- Filtros serão injetados via JS -->
             </aside>
-
+ 
             <main class="hqs-results">
                 <div id="hqs-grid" class="hqs-grid-container"></div>
             </main>

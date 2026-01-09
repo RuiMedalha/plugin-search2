@@ -4,7 +4,7 @@
  * - Filtros funcionais (categorias, marcas, preço)
  * - Botão adicionar ao carrinho
  */
-
+ 
 // Função global para adicionar ao carrinho (WooCommerce AJAX)
 window.hqsAddToCart = function(productId, btn) {
     if (!productId) return;
@@ -47,7 +47,7 @@ window.hqsAddToCart = function(productId, btn) {
         }
     });
 };
-
+ 
 jQuery(document).ready(function($) {
     const config = window.hqsData || {};
     
@@ -70,10 +70,10 @@ jQuery(document).ready(function($) {
         facets: {
             categories: [],
             brands: [],
-            priceRange: { min: 0, max: 10000 }
+            priceRange: null
         }
     };
-
+ 
     // Formatar preço em EUR
     const formatPrice = (price) => {
         const num = parseFloat(price);
@@ -83,7 +83,7 @@ jQuery(document).ready(function($) {
             currency: 'EUR' 
         }).format(num);
     };
-
+ 
     // Escape HTML
     const esc = (str) => {
         if (!str) return '';
@@ -93,7 +93,7 @@ jQuery(document).ready(function($) {
             .replace(/>/g, '&gt;')
             .replace(/"/g, '&quot;');
     };
-
+ 
     // Construir HTML do preço
     const buildPriceHTML = (p) => {
         const price = parseFloat(p.price) || 0;
@@ -114,7 +114,7 @@ jQuery(document).ready(function($) {
         
         return `<span class="hqs-price-contact">Sob consulta</span>`;
     };
-
+ 
     // Construir HTML do card
     const buildCardHTML = (p) => {
         const link = p.permalink || p.url || '#';
@@ -129,7 +129,7 @@ jQuery(document).ready(function($) {
         const imgTag = imgUrl 
             ? `<img src="${imgUrl}" alt="${title}" loading="lazy" onerror="this.src='${placeholderSvg}'">`
             : `<img src="${placeholderSvg}" alt="Sem imagem">`;
-
+ 
         return `
             <article class="hqs-product-card" data-product-id="${productId}">
                 <a href="${link}" class="hqs-card-link">
@@ -149,7 +149,7 @@ jQuery(document).ready(function($) {
             </article>
         `;
     };
-
+ 
     // Construir sidebar de filtros
     const buildFiltersHTML = () => {
         let html = '';
@@ -232,18 +232,75 @@ jQuery(document).ready(function($) {
         
         return html;
     };
-
+ 
+    // UI helpers (mobile filters drawer)
+    const ui = {
+        isMobile: window.matchMedia && window.matchMedia('(max-width: 768px)').matches
+    };
+ 
+    const setFiltersOpen = (open) => {
+        const root = document.documentElement;
+        root.classList.toggle('hqs-filters-open', !!open);
+        $('#hqs-open-filters').attr('aria-expanded', open ? 'true' : 'false');
+    };
+ 
+    const bindFiltersDrawerEvents = () => {
+        // open button
+        $('#hqs-open-filters').off('click').on('click', function() {
+            if (!ui.isMobile) return;
+            setFiltersOpen(true);
+        });
+ 
+        // backdrop close
+        $('#hqs-filters-backdrop').off('click').on('click', function() {
+            setFiltersOpen(false);
+        });
+ 
+        // esc close
+        $(document).off('keydown.hqsFilters').on('keydown.hqsFilters', function(e) {
+            if (e.key === 'Escape') setFiltersOpen(false);
+        });
+    };
+ 
+    const withMobileSidebarHeader = (innerHtml) => {
+        if (!ui.isMobile) return innerHtml;
+        return `
+            <div class="hqs-sidebar-mobile-bar">
+                <div class="hqs-sidebar-mobile-title">Filtros</div>
+                <button type="button" class="hqs-sidebar-close" id="hqs-close-filters" aria-label="Fechar">&times;</button>
+            </div>
+            ${innerHtml}
+        `;
+    };
+ 
     // Atualizar sidebar
     const updateSidebar = () => {
-        const sidebar = $('.hqs-sidebar');
-        if (state.facets.categories.length > 0 || state.facets.brands.length > 0) {
-            sidebar.html(buildFiltersHTML()).show();
+        ui.isMobile = window.matchMedia && window.matchMedia('(max-width: 768px)').matches;
+        const sidebar = $('#hqs-sidebar');
+        const hasFacets = (state.facets.categories && state.facets.categories.length > 0) || (state.facets.brands && state.facets.brands.length > 0) || !!state.facets.priceRange;
+ 
+        if (hasFacets) {
+            sidebar.html(withMobileSidebarHeader(buildFiltersHTML()));
+            if (!ui.isMobile) sidebar.show();
             bindFilterEvents();
+            bindFiltersDrawerEvents();
+ 
+            // show "Filtros" button (mobile only)
+            if (ui.isMobile) $('#hqs-open-filters').css('display', 'inline-flex');
+            else $('#hqs-open-filters').hide();
+ 
+            // mobile close button
+            $('#hqs-close-filters').off('click').on('click', function() {
+                setFiltersOpen(false);
+            });
         } else {
-            sidebar.hide();
+            sidebar.empty();
+            if (!ui.isMobile) sidebar.hide();
+            $('#hqs-open-filters').hide();
+            setFiltersOpen(false);
         }
     };
-
+ 
     // Bind eventos dos filtros
     const bindFilterEvents = () => {
         // Checkboxes de categoria
@@ -348,14 +405,14 @@ jQuery(document).ready(function($) {
             resetAndSearch();
         });
     };
-
+ 
     // Reset e pesquisar novamente
     const resetAndSearch = () => {
         state.offset = 0;
         state.hasMore = true;
         loadProducts(false);
     };
-
+ 
     // Mostrar loader
     const showLoader = (append) => {
         if (!append) {
@@ -375,18 +432,18 @@ jQuery(document).ready(function($) {
             }
         }
     };
-
+ 
     // Esconder loader de scroll
     const hideScrollLoader = () => {
         $('#hqs-scroll-loader').remove();
     };
-
+ 
     // Atualizar título
     const updateTitle = () => {
         $('#hqs-search-term').text(state.query);
         $('#hqs-total-hits').text(state.totalHits);
     };
-
+ 
     // Carregar produtos
     const loadProducts = (append = false) => {
         if (state.isLoading) return;
@@ -394,7 +451,7 @@ jQuery(document).ready(function($) {
         
         state.isLoading = true;
         showLoader(append);
-
+ 
         // Construir parâmetros
         const params = {
             q: state.query,
@@ -415,7 +472,7 @@ jQuery(document).ready(function($) {
         if (state.filters.priceMax !== null) {
             params.price_max = state.filters.priceMax;
         }
-
+ 
         $.ajax({
             url: config.apiUrl,
             method: 'GET',
@@ -425,10 +482,10 @@ jQuery(document).ready(function($) {
                 if (typeof response === 'string') {
                     try { response = JSON.parse(response); } catch(e) { response = {}; }
                 }
-
+ 
                 let products = response.products || response.hits || [];
                 if (Array.isArray(response)) products = response;
-
+ 
                 // Atualizar total e estado
                 state.totalHits = parseInt(response.total_hits) || 0;
                 state.hasMore = response.has_more !== false && products.length >= state.limit;
@@ -441,7 +498,7 @@ jQuery(document).ready(function($) {
                 }
                 
                 updateTitle();
-
+ 
                 // Atualizar facets (só na primeira carga ou quando filtros mudam)
                 if (!append) {
                     if (response.categories_facet) {
@@ -455,7 +512,7 @@ jQuery(document).ready(function($) {
                     }
                     updateSidebar();
                 }
-
+ 
                 // Sem produtos
                 if (!products || products.length === 0) {
                     if (!append) {
@@ -477,17 +534,17 @@ jQuery(document).ready(function($) {
                     state.isLoading = false;
                     return;
                 }
-
+ 
                 // Construir HTML dos cards
                 const html = products.map(buildCardHTML).join('');
-
+ 
                 if (append) {
                     hideScrollLoader();
                     $('#hqs-grid').append(html);
                 } else {
                     $('#hqs-grid').html(html);
                 }
-
+ 
                 // Verificar se há mais
                 if (products.length < state.limit) {
                     state.hasMore = false;
@@ -501,7 +558,7 @@ jQuery(document).ready(function($) {
                         `);
                     }
                 }
-
+ 
                 state.isLoading = false;
             },
             error: function(xhr, status, error) {
@@ -521,7 +578,7 @@ jQuery(document).ready(function($) {
             }
         });
     };
-
+ 
     // Scroll infinito
     const initInfiniteScroll = () => {
         let ticking = false;
@@ -543,7 +600,7 @@ jQuery(document).ready(function($) {
             }
         });
     };
-
+ 
     // Inicializar
     const init = () => {
         if (!state.query) {
@@ -555,11 +612,11 @@ jQuery(document).ready(function($) {
             `);
             return;
         }
-
+ 
         updateTitle();
         loadProducts(false);
         initInfiniteScroll();
     };
-
+ 
     init();
 });
