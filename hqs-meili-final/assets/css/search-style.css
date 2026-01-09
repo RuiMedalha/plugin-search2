@@ -1,0 +1,577 @@
+/* =============================================================
+   HQS Search Results - V6.1 (Fix Footer Override)
+   - Corrige sobreposição do footer
+   - Força o container a empurrar conteúdo abaixo
+   ============================================================= */
+
+/* RESET CRÍTICO - Força o container a comportar-se normalmente */
+#hqs-search-app {
+    display: block !important;
+    position: relative !important;
+    z-index: 1 !important;
+    float: none !important;
+    clear: both !important;
+    overflow: visible !important;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 30px 20px 60px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #fff;
+    box-sizing: border-box;
+}
+
+/* Clearfix para garantir que o container engloba todo o conteúdo */
+#hqs-search-app::after {
+    content: "";
+    display: table;
+    clear: both;
+}
+
+#hqs-search-app *, 
+#hqs-search-app *::before, 
+#hqs-search-app *::after {
+    box-sizing: border-box;
+}
+
+/* Header com contador */
+.hqs-header {
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid #eee;
+}
+
+.hqs-title {
+    font-size: 18px;
+    font-weight: 400;
+    color: #333;
+    margin: 0;
+}
+
+.hqs-title span {
+    color: #00526d;
+    font-weight: 600;
+}
+
+/* Layout Principal: Sidebar + Grid */
+.hqs-layout {
+    display: flex !important;
+    flex-wrap: nowrap;
+    gap: 30px;
+    align-items: flex-start;
+    position: relative !important;
+}
+
+/* =====================
+   SIDEBAR FILTROS
+   ===================== */
+.hqs-sidebar {
+    width: 260px;
+    min-width: 260px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 20px;
+    max-height: calc(100vh - 40px);
+    overflow-y: auto;
+}
+
+.hqs-filter-group {
+    background: #fff;
+    border: 1px solid #e5e5e5;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 15px;
+}
+
+.hqs-filter-group h3 {
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: #333;
+    margin: 0 0 15px 0;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #00526d;
+    letter-spacing: 0.5px;
+}
+
+/* Facet Items (Categorias) */
+#hqs-facet-categories {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.hqs-facet-item {
+    display: block;
+    padding: 10px 12px;
+    color: #555;
+    text-decoration: none;
+    font-size: 14px;
+    border-radius: 6px;
+    transition: all 0.15s ease;
+}
+
+.hqs-facet-item:hover {
+    background: #f0f7f9;
+    color: #00526d;
+    padding-left: 16px;
+}
+
+/* =====================
+   FILTROS (Checkboxes, Preço)
+   ===================== */
+.hqs-filter-list {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 250px;
+    overflow-y: auto;
+}
+
+.hqs-filter-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background 0.15s ease;
+    font-size: 13px;
+}
+
+.hqs-filter-item:hover {
+    background: #f5f5f5;
+}
+
+.hqs-filter-item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    accent-color: #00526d;
+    cursor: pointer;
+    flex-shrink: 0;
+}
+
+.hqs-filter-name {
+    flex: 1;
+    color: #333;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.hqs-filter-count {
+    color: #999;
+    font-size: 12px;
+    flex-shrink: 0;
+}
+
+/* Filtro de Preço - Range Slider */
+.hqs-price-filter {
+    padding: 10px 0 5px;
+}
+
+.hqs-range-slider {
+    position: relative;
+    height: 30px;
+    margin: 10px 0;
+}
+
+.hqs-range-track {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 6px;
+    background: #e0e0e0;
+    border-radius: 3px;
+}
+
+.hqs-range-selected {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    height: 6px;
+    background: #00526d;
+    border-radius: 3px;
+    left: 0;
+    width: 100%;
+}
+
+.hqs-range-slider input[type="range"] {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 100%;
+    height: 6px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent;
+    pointer-events: none;
+    margin: 0;
+}
+
+.hqs-range-slider input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    background: #00526d;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+    transition: transform 0.15s ease;
+}
+
+.hqs-range-slider input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.15);
+}
+
+.hqs-range-slider input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    background: #00526d;
+    border: 3px solid #fff;
+    border-radius: 50%;
+    cursor: pointer;
+    pointer-events: auto;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+.hqs-price-values {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 13px;
+    color: #333;
+    font-weight: 600;
+    margin-top: 5px;
+}
+
+.hqs-price-values span:nth-child(2) {
+    color: #999;
+}
+
+/* Botão Limpar Filtros */
+.hqs-btn-clear-filters {
+    width: 100%;
+    padding: 10px 15px;
+    background: #f5f5f5;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    color: #666;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.hqs-btn-clear-filters:hover {
+    background: #eee;
+    border-color: #ccc;
+    color: #333;
+}
+
+/* =====================
+   ÁREA DE RESULTADOS
+   ===================== */
+.hqs-results {
+    flex: 1 1 auto !important;
+    min-width: 0;
+    width: 100%;
+}
+
+/* Grid de Produtos - 4 colunas */
+.hqs-grid-container {
+    display: grid !important;
+    grid-template-columns: repeat(4, 1fr) !important;
+    gap: 20px !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+/* =====================
+   CARD DE PRODUTO (Estilo Searchanise)
+   ===================== */
+.hqs-product-card {
+    background: #fff;
+    border: 1px solid #e8e8e8;
+    border-radius: 8px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex !important;
+    flex-direction: column !important;
+    position: relative !important;
+    z-index: 1 !important;
+}
+
+.hqs-product-card:hover {
+    border-color: #00526d;
+    box-shadow: 0 8px 25px rgba(0, 82, 109, 0.12);
+    transform: translateY(-4px);
+}
+
+/* Link do card */
+.hqs-card-link {
+    display: flex !important;
+    flex-direction: column !important;
+    flex: 1;
+    text-decoration: none !important;
+    color: inherit !important;
+}
+
+/* Imagem - Maior e quadrada */
+.hqs-img-wrap {
+    position: relative !important;
+    width: 100% !important;
+    padding-top: 100% !important; /* Aspect ratio 1:1 */
+    background: #fafafa;
+    overflow: hidden;
+}
+
+.hqs-img-wrap img {
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
+    padding: 15px;
+    transition: transform 0.3s ease;
+}
+
+.hqs-product-card:hover .hqs-img-wrap img {
+    transform: scale(1.05);
+}
+
+/* Info do Produto */
+.hqs-info {
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    text-align: center;
+}
+
+/* Título - mais pequeno, 3 linhas */
+.hqs-prod-title {
+    font-size: 13px !important;
+    font-weight: 600 !important;
+    color: #00526d !important;
+    margin: 0 0 6px 0 !important;
+    line-height: 1.35 !important;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    min-height: 4em;
+    text-transform: none !important;
+}
+
+.hqs-prod-title:hover {
+    color: #007a99 !important;
+}
+
+/* Marca */
+.hqs-prod-brand {
+    font-size: 11px;
+    color: #888;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+}
+
+/* Descrição curta - 3 linhas, texto mais pequeno */
+.hqs-prod-desc {
+    font-size: 11px !important;
+    color: #666;
+    line-height: 1.4 !important;
+    margin-bottom: 10px;
+    display: -webkit-box !important;
+    -webkit-line-clamp: 3 !important;
+    -webkit-box-orient: vertical !important;
+    overflow: hidden !important;
+    min-height: 4.2em;
+}
+
+/* Preço */
+.hqs-price-box {
+    margin-top: auto;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f0;
+}
+
+.hqs-price-current {
+    font-size: 18px !important;
+    font-weight: 700 !important;
+    color: #00526d !important;
+}
+
+.hqs-price-old {
+    font-size: 13px !important;
+    color: #999 !important;
+    text-decoration: line-through !important;
+    margin-left: 8px;
+}
+
+/* Sem preço */
+.hqs-price-contact {
+    font-size: 14px;
+    color: #888;
+    font-style: italic;
+}
+
+/* Botão Adicionar ao Carrinho */
+.hqs-btn-cart {
+    display: inline-block;
+    background: #00526d !important;
+    color: #fff !important;
+    font-size: 11px !important;
+    font-weight: 600 !important;
+    padding: 6px 12px !important;
+    border-radius: 4px !important;
+    border: none !important;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+    transition: background 0.2s ease;
+    margin-left: 8px;
+}
+
+.hqs-btn-cart:hover {
+    background: #007a99 !important;
+}
+
+/* =====================
+   SCROLL INFINITO
+   ===================== */
+.hqs-scroll-loader {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 40px 20px;
+}
+
+.hqs-spinner {
+    display: inline-block;
+    width: 40px;
+    height: 40px;
+    border: 3px solid #e0e0e0;
+    border-top-color: #00526d;
+    border-radius: 50%;
+    animation: hqs-spin 0.8s linear infinite;
+}
+
+@keyframes hqs-spin {
+    to { transform: rotate(360deg); }
+}
+
+.hqs-end-message {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 30px;
+    color: #888;
+    font-size: 14px;
+}
+
+/* Loading inicial */
+.hqs-loading-initial {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 80px 20px;
+    color: #666;
+}
+
+/* Sem resultados */
+.hqs-no-results {
+    grid-column: 1 / -1;
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.hqs-no-results h3 {
+    font-size: 18px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+/* =====================
+   PAGINAÇÃO (backup se scroll falhar)
+   ===================== */
+.hqs-pagination {
+    clear: both !important;
+    width: 100% !important;
+    text-align: center;
+    padding: 40px 0;
+    margin-top: 20px;
+}
+
+/* =====================
+   RESPONSIVE
+   ===================== */
+@media (max-width: 1200px) {
+    .hqs-grid-container {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 992px) {
+    .hqs-layout {
+        flex-direction: column !important;
+    }
+    
+    .hqs-sidebar {
+        width: 100% !important;
+        min-width: 100% !important;
+        position: relative !important;
+        top: 0 !important;
+        max-height: none !important;
+        margin-bottom: 20px;
+    }
+    
+    .hqs-grid-container {
+        grid-template-columns: repeat(3, 1fr) !important;
+    }
+}
+
+@media (max-width: 768px) {
+    #hqs-search-app {
+        padding: 20px 15px 40px;
+    }
+    
+    .hqs-sidebar {
+        display: none !important;
+    }
+    
+    .hqs-grid-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 12px !important;
+    }
+    
+    .hqs-prod-title {
+        font-size: 13px !important;
+    }
+    
+    .hqs-price-current {
+        font-size: 16px !important;
+    }
+    
+    .hqs-prod-desc {
+        display: none !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .hqs-grid-container {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 10px !important;
+    }
+    
+    .hqs-info {
+        padding: 10px;
+    }
+    
+    .hqs-img-wrap img {
+        padding: 10px;
+    }
+}
